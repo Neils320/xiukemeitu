@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">xiukemeitu</string>
+
+    <!--导航-->
+    <string name="nav_recom">热门推荐</string>
+    <string name="nav_cloth">美女搭配</string>
+    <string name="nav_hot">热门美女</string>
+    <string name="nav_setting">设置</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
