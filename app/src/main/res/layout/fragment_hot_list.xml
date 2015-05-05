@@ -1,0 +1,15 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/color_03a9f4"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="上海"
+        android:layout_centerInParent="true"
+        android:textSize="20dp" />
+
+</RelativeLayout>
