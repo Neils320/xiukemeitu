@@ -1,20 +1,26 @@
 package org.fireking.xiukemeitu.ui;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.etsy.android.grid.StaggeredGridView;
 
 import org.fireking.xiukemeitu.R;
 import org.fireking.xiukemeitu.data.CategoryData;
 import org.fireking.xiukemeitu.data.bean.CategoryBean;
+import org.fireking.xiukemeitu.data.bean.ImageBean;
 import org.fireking.xiukemeitu.data.bean.MeinvListBean;
 import org.fireking.xiukemeitu.support.utils.BaseFragment;
 import org.fireking.xiukemeitu.support.utils.ThreadPool;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wanggang on 15/5/4.
@@ -25,7 +31,9 @@ public class HotListFragment extends BaseFragment {
 
     private CategoryBean categoryBean;
 
-    private TextView position;
+    private StaggeredGridView mStaggeredGridView;
+    private HotListAdapter mHotListAdapter;
+    private SimpleHandler handler;
 
     public static HotListFragment newInstance(CategoryBean param1) {
         HotListFragment fragment = new HotListFragment();
@@ -44,7 +52,6 @@ public class HotListFragment extends BaseFragment {
         if (getArguments() != null) {
             categoryBean = (CategoryBean) getArguments().getSerializable(ARG_INDEX);
         }
-        Log.d("info", "获取到的信息 :" + categoryBean.toString());
     }
 
     @Nullable
@@ -56,8 +63,10 @@ public class HotListFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        position = (TextView) getView().findViewById(R.id.position);
-        position.setText(categoryBean.getTitle());
+        mStaggeredGridView = (StaggeredGridView) getView().findViewById(R.id.grid_view);
+        mHotListAdapter = new HotListAdapter(getActivity());
+        mStaggeredGridView.setAdapter(mHotListAdapter);
+        handler = new SimpleHandler();
         getNetData();
     }
 
@@ -65,20 +74,37 @@ public class HotListFragment extends BaseFragment {
      * 获取数据
      */
     private void getNetData() {
-
-        Log.d("info", categoryBean.getTitle());
         ThreadPool.newInstance().execute(new Runnable() {
             @Override
             public void run() {
                 CategoryData dao = new CategoryData();
                 try {
                     MeinvListBean listBean = dao.getList(categoryBean.getUri());
-                    Log.e("info", listBean.toString());
+                    if (listBean != null && listBean.getPageCount() != 0 && listBean.getBeans() != null || listBean.getBeans().size() != 0) {
+                        Message msg = handler.obtainMessage(2,  listBean.getBeans());
+                        msg.sendToTarget();
+                    }else{
+
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+
+    class SimpleHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 2:
+                    List<ImageBean> bean = (List<ImageBean>) msg.obj;
+                    mHotListAdapter.replace(bean);
+                    break;
+            }
+        }
     }
 
 }

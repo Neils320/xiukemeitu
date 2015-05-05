@@ -1,5 +1,6 @@
 package org.fireking.xiukemeitu.support.utils;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,6 +13,17 @@ import java.util.List;
  * Created by wanggang on 15/4/24.
  */
 public abstract class CommAdapter<T> extends BaseAdapter{
+
+    protected Context mContext;
+
+    public CommAdapter(Context mContext){
+        this.mContext = mContext;
+    }
+
+    protected CommAdapter(List<T> temp, Context mContext){
+        this(mContext);
+        this.temp = temp;
+    }
 
     private List<T> temp = new ArrayList<>();
 

@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/org.fireking.xiukemeitu"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -7,21 +8,20 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <HorizontalScrollView
-            android:id="@+id/horizontal"
+        <org.fireking.xiukemeitu.support.widget.PagerSlidingTabStrip
+            android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:scrollbars="none"
-            android:layout_height="50dip">
+            android:layout_height="40dp"
+            android:background="@color/color_03a9f4"
+            app:pstsDividerColor="@android:color/transparent"
+            app:pstsIndicatorColor="@android:color/white"
+            app:pstsIndicatorHeight="2dp"
+            app:pstsShouldExpand="false"
+            app:pstsTabBackground="@drawable/background_tab"
+            app:pstsUnderlineHeight="2dp"
+            app:selectedTabTextColor="@android:color/white" />
 
-            <RadioGroup
-                android:id="@+id/radio_group"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/color_03a9f4"
-                android:orientation="horizontal"/>
-        </HorizontalScrollView>
-
-        <org.fireking.xiukemeitu.widget.MyViewPager
+        <org.fireking.xiukemeitu.support.widget.WbViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
