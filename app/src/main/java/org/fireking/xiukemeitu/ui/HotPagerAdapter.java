@@ -23,7 +23,7 @@ public class HotPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return HotListFragment.newInstance(position);
+        return HotListFragment.newInstance(categoryBeans.get(position));
     }
 
     @Override

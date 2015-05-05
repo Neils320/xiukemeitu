@@ -1,23 +1,35 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-
-    <it.neokree.materialtabs.MaterialTabHost
-        android:id="@+id/materialTabHost"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:accentColor="@android:color/transparent"
-        app:primaryColor="#9227b0"
-        app:textColor="#FFFFFF" />
-
-    <org.fireking.xiukemeitu.widget.MyViewPager
-        android:id="@+id/pager"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:orientation="vertical">
 
+        <HorizontalScrollView
+            android:id="@+id/horizontal"
+            android:layout_width="match_parent"
+            android:scrollbars="none"
+            android:layout_height="50dip">
 
-</LinearLayout>
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/color_03a9f4"
+                android:orientation="horizontal"/>
+        </HorizontalScrollView>
+
+        <org.fireking.xiukemeitu.widget.MyViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <include layout="@layout/common_errors" />
+
+    <include layout="@layout/common_loading" />
+
+</RelativeLayout>
