@@ -4,49 +4,54 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import com.daimajia.slider.library.Animations.DescriptionAnimation;
+import com.daimajia.slider.library.Indicators.PagerIndicator;
+import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.BaseSliderView;
+import com.daimajia.slider.library.SliderTypes.TextSliderView;
 
 import org.fireking.xiukemeitu.R;
 import org.fireking.xiukemeitu.data.RecomData;
 import org.fireking.xiukemeitu.data.bean.ImageBean;
+import org.fireking.xiukemeitu.data.bean.RecomBean;
 import org.fireking.xiukemeitu.support.utils.BaseFragment;
 import org.fireking.xiukemeitu.support.utils.ThreadPool;
 import org.fireking.xiukemeitu.support.widget.MyMergeAdapter;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
-
-import static android.content.Context.WINDOW_SERVICE;
 
 /**
  * Created by wanggang on 15/5/4.
  */
-public class RecomFragment extends BaseFragment {
+public class RecomFragment extends BaseFragment implements BaseSliderView.OnSliderClickListener {
 
     private ListView mRecomListview;
     private MyMergeAdapter myMergeAdapter;
-    private View adBanner;
-    private ViewPager slidingPager;//ÊªöÂõæ
-    private LinearLayout navLinear;//ÁÇπ
-    private List<View> views = new ArrayList<>();
 
     private MyHandler handler;
 
-    private SlidingPagerAdapter mSlidingPagerAdapter;
+    private  RecomData data;
 
+    private SliderLayout mSliderLayout;
+    private RelativeLayout mSliderParentPanel;
+    private PagerIndicator mPagerIndicator;
+
+    private RecomListAdapter mRecomListAdapter;
+
+    public RecomFragment(){
+        data = new RecomData();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,7 +64,6 @@ public class RecomFragment extends BaseFragment {
         mRecomListview = (ListView) getView().findViewById(R.id.recom_listview);
         myMergeAdapter = new MyMergeAdapter();
         initTopBanner();
-        //Ëé∑ÂèñÁΩëÁªúÊï∞ÊçÆ
         handler = new MyHandler();
         getNetData();
     }
@@ -70,18 +74,22 @@ public class RecomFragment extends BaseFragment {
         wm.getDefaultDisplay().getMetrics(metics);
         int screenPixels = metics.heightPixels;
         int pixcel = screenPixels / 3;
-        adBanner = View.inflate(getActivity(), R.layout.view_sliding_image, null);
-        adBanner.getLayoutParams().height = pixcel;
-        slidingPager = (ViewPager) adBanner.findViewById(R.id.vPager);
-        navLinear = (LinearLayout) adBanner.findViewById(R.id.nav_linear);
+        mSliderParentPanel = (RelativeLayout) View.inflate(getActivity(), R.layout.view_sliding_image, null);
+        mSliderParentPanel.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, pixcel));
+        mSliderLayout = (SliderLayout) mSliderParentPanel.findViewById(R.id.slider);
+        mPagerIndicator = (PagerIndicator) mSliderParentPanel.findViewById(R.id.custom_indicator);
+        mRecomListAdapter = new RecomListAdapter(getActivity());
+        myMergeAdapter.addView(mSliderParentPanel);
+        myMergeAdapter.addAdapter(mRecomListAdapter);
+        mRecomListview.setAdapter(myMergeAdapter);
     }
 
     public void getNetData() {
 
+        //ªÒ»°π„∏Ê ˝æ›
         ThreadPool.newInstance().execute(new Runnable() {
             @Override
             public void run() {
-                RecomData data = new RecomData();
                 try {
                     List<ImageBean> beans = data.getAd();
                     if (beans == null || beans.size() == 0) {
@@ -96,6 +104,31 @@ public class RecomFragment extends BaseFragment {
                 }
             }
         });
+
+
+        //ªÒ»°¡–±Ì ˝æ›
+        ThreadPool.newInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<RecomBean> recomBeans = data.getRecomList();
+                    if(recomBeans == null || recomBeans.size() == 0){
+                        handler.sendEmptyMessage(5);//ªÒ»°¡–±Ì ˝æ›Œ™ø’¡À
+                    }else{
+                        Message msg= handler.obtainMessage(6, recomBeans);
+                        msg.sendToTarget();
+                    }
+                } catch (IOException e) {
+                    handler.sendEmptyMessage(7);//Ω‚Œˆ≥ˆ¥Ì¡À,jsonÕ¯¬Á«Î«Û±ªæ‹æ¯
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onSliderClick(BaseSliderView baseSliderView) {
+        ImageBean bean = (ImageBean) baseSliderView.getBundle().getSerializable("bean");
     }
 
 
@@ -105,26 +138,40 @@ public class RecomFragment extends BaseFragment {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 2://Êï∞ÊçÆ‰∏∫Á©∫
-                    Toast.makeText(getActivity(), "Êï∞ÊçÆ‰∏∫Á©∫!", Toast.LENGTH_SHORT).show();
+                case 2://
+                    Toast.makeText(getActivity(), "«Î«Û ˝æ› ß∞‹", Toast.LENGTH_SHORT).show();
                     break;
                 case 3://ok
                     List<ImageBean> beans = (List<ImageBean>) msg.obj;
-                    views.clear();
                     for (int i = 0; i < beans.size(); i++) {
-                        View view = View.inflate(getActivity(), R.layout.sliding_image, null);
-                        ImageView images = (ImageView) view.findViewById(R.id.image);
-                        TextView title = (TextView) view.findViewById(R.id.title);
-                        title.setText(beans.get(i).getTitle());
-                        Picasso.with(getActivity()).load(beans.get(i).getImage()).placeholder(R.drawable.abc_ab_share_pack_mtrl_alpha).into(images);
-                        views.add(view);
+                        ImageBean bean = beans.get(i);
+                        TextSliderView textSliderView = new TextSliderView(getActivity());
+                        textSliderView.description(bean.getTitle()).image(bean.getImage()).setScaleType(BaseSliderView.ScaleType.Fit).setOnSliderClickListener(RecomFragment.this);
+
+                        if (textSliderView.getBundle() != null) {
+                            textSliderView.getBundle().putSerializable("bean", bean);
+                        }
+                        mSliderLayout.addSlider(textSliderView);
                     }
-                    mSlidingPagerAdapter = new SlidingPagerAdapter(views, getActivity());
-                    slidingPager.setAdapter(mSlidingPagerAdapter);
-                    myMergeAdapter.addView(adBanner);
+                    mSliderLayout.setPresetTransformer(SliderLayout.Transformer.Default);
+                    mSliderLayout.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+                    mSliderLayout.setCustomAnimation(new DescriptionAnimation());
+                    mSliderLayout.setDuration(4000);
+                    myMergeAdapter.notifyDataSetChanged();
                     break;
-                case 4://Ëß£ÊûêÂ§±Ë¥•
-                    Toast.makeText(getActivity(), "Ëß£ÊûêÂ§±Ë¥•!", Toast.LENGTH_SHORT).show();
+                case 4:
+                    Toast.makeText(getActivity(), "«Î«Û ˝æ› ß∞‹", Toast.LENGTH_SHORT).show();
+                    break;
+                case 5:
+                    Toast.makeText(getActivity(), "«Î«Û ˝æ› ß∞‹", Toast.LENGTH_SHORT).show();
+                    break;
+                case 6:
+                    List<RecomBean> recomBeans = (List<RecomBean>) msg.obj;
+                    mRecomListAdapter.replace(recomBeans);
+                    myMergeAdapter.notifyDataSetChanged();
+                    break;
+                case 7:
+                    Toast.makeText(getActivity(), "«Î«Û ˝æ› ß∞‹", Toast.LENGTH_SHORT).show();
                     break;
             }
         }

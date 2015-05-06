@@ -2,21 +2,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parentPanel"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vPager"
+    <com.daimajia.slider.library.SliderLayout
+        android:id="@+id/slider"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="200dp" />
 
-    <LinearLayout
-        android:id="@+id/nav_linear"
-        android:layout_width="match_parent"
-        android:layout_height="35dip"
-        android:layout_alignParentBottom="true"
-        android:background="#66000000"
-        android:gravity="right"
-        android:orientation="horizontal">
-    </LinearLayout>
+    <com.daimajia.slider.library.Indicators.PagerIndicator
+        android:id="@+id/custom_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/slider"
+        android:gravity="center" />
 </RelativeLayout>
